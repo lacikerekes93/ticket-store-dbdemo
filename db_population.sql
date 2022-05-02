@@ -22,10 +22,19 @@ INSERT INTO  Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, Unit
 VALUES (4, 2, NULL, 10 ,4, 56, FALSE);
 INSERT INTO  Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased, Discontinued)
 VALUES (5, 3, NULL, 20, 0, 100, TRUE);
---select * from products;
 
-------------------------------------
---drop table Users;
+
+CREATE TABLE Event(
+	EventId int NOT NULL,
+	Category varchar(60),
+	Name varchar(60),
+ CONSTRAINT PK_EventId PRIMARY KEY (EventId)
+ );
+
+INSERT INTO Event  (EventId, Category, Name) VALUES (2,'Cinema', 'The Wolves of Wallstreet');
+INSERT INTO Event  (EventId, Category, Name) VALUES (3,'Concert', 'Halott Pénz');
+
+
 CREATE TABLE Users(
 	UserId int NOT NULL,
 	Username varchar(100) NOT NULL,
@@ -41,3 +50,13 @@ INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (2, 'Be
 INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (3, 'Charles', 'charles@mail.com', 400, 70);
 INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (4, 'Daniela', 'daniela@mail.com', 600, 120);
 
+
+CREATE TABLE UserTicket(
+	UserId int NOT NULL,
+	TicketId int NOT NULL,
+	PurchaseTime Timestamp DEFAULT CURRENT_TIMESTAMP,
+ CONSTRAINT PK_UserTicketId PRIMARY KEY (UserId, TicketId)
+ );
+
+INSERT INTO UserTicket  (UserID, TicketId, PurchaseTime) VALUES (1,4, '2022-05-02 13:41:00.123');
+INSERT INTO UserTicket  (UserID, TicketId, PurchaseTime) VALUES (1,5, '2022-05-02 14:42:00.133');

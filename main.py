@@ -31,9 +31,27 @@ def _get_json_from_db(sql, *params):
 def index(id):
 
     user_data = _get_json_from_db('''SELECT * FROM Users where UserId=%s''', id)[0]
-    tickets_data = _get_json_from_db('''SELECT * FROM Tickets''')
+    userticket_data = _get_json_from_db('''
+                                            select t.*, e.* from Users u
+                                            join UserTicket ut on u.UserId = ut.UserId
+                                            join Tickets t on ut.TicketId = t.TicketId
+                                            join Event e on t.EventId = e.EventId
+                                        ''')
+    print(userticket_data)
+    return render_template('index.html', user=user_data, usertickets=userticket_data)
 
-    return render_template('index.html', user=user_data, tickets=tickets_data)
+@app.route('/tickets/user/<id>')
+def tickets(id):
+
+    user_data = _get_json_from_db('''SELECT * FROM Users where UserId=%s''', id)[0]
+    tickets_data = _get_json_from_db('''
+                                    select * 
+                                    from Tickets t 
+                                    join Event e on t.EventId = e.EventId
+                                    ''')
+
+    print(tickets_data)
+    return render_template('tickets.html', user=user_data, tickets=tickets_data)
 
 @app.route('/signin')
 def form():
@@ -56,4 +74,4 @@ def login():
         else:
             return render_template('signin.html')
 
-app.run(host='localhost', port=5000)
+#app.run(host='localhost', port=5000)
