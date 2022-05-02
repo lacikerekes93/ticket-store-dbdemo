@@ -30,7 +30,7 @@ def _get_json_from_db(sql, *params):
 @app.route('/user/<id>')
 def index(id):
 
-    user_data = _get_json_from_db('''SELECT * FROM Customers where CustomerId=%s''', id)[0]
+    user_data = _get_json_from_db('''SELECT * FROM Users where UserId=%s''', id)[0]
     tickets_data = _get_json_from_db('''SELECT * FROM Tickets''')
 
     return render_template('index.html', user=user_data, tickets=tickets_data)
@@ -49,10 +49,10 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        data = _get_json_from_db("select CustomerId from Customers where Email=%s", email)
+        data = _get_json_from_db("select UserId from Users where Email=%s", email)
         print(data)
         if len(data)>0:
-            return redirect(url_for('index', id=data[0]['CustomerId']))
+            return redirect(url_for('index', id=data[0]['UserId']))
         else:
             return render_template('signin.html')
 

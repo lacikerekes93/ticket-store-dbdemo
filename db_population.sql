@@ -36,8 +36,8 @@ CREATE TABLE Users(
 	UserId
 ));
 
-INSERT INTO Customers  (UserID, Username, Email, Balance) VALUES (1, 'Alfred', 'alfred@mail.com', 1000, 2000);
-INSERT INTO Customers  (UserID, Username, Email, Balance) VALUES (1, 'Bela', 'bela@mail.com', 100, 20);
-INSERT INTO Customers  (UserID, Username, Email, Balance) VALUES (1, 'Charles', 'charles@mail.com', 400, 70);
-INSERT INTO Customers  (UserID, Username, Email, Balance) VALUES (1, 'Daniela', 'daniela@mail.com', 600, 120);
+INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (1, 'Alfred', 'alfred@mail.com', 1000, 2000);
+INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (2, 'Bela', 'bela@mail.com', 100, 20);
+INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (3, 'Charles', 'charles@mail.com', 400, 70);
+INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (4, 'Daniela', 'daniela@mail.com', 600, 120);
 
