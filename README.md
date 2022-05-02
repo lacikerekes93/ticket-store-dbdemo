@@ -2,7 +2,7 @@ For mac:
 
 To setup MySQL database:
 
-1. homebrew install mqsql
+1. brew install mysql
 2. mysql.server start
 3. mysql -u root -p (or GUI: TablePlus)
 4. populate tables based on db_population.sql

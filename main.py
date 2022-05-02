@@ -1,7 +1,7 @@
 #export FLASK_APP=main
 #export FLASK_ENV=development
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for, redirect
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -13,22 +13,31 @@ app.config['MYSQL_DB'] = 'flask'
 
 mysql = MySQL(app)
 
-@app.route('/')
-def get_tickets():
+def _get_json_from_db(sql, *params):
 
-    cur = mysql.connection.cursor()
-    cur.execute('''SELECT * FROM Tickets''')
-    row_headers = [x[0] for x in cur.description]  # this will extract row headers
-    rv = cur.fetchall()
+    cursor = mysql.connection.cursor()
+    cursor.execute(sql, params)
+
+    row_headers = [x[0] for x in cursor.description]  # this will extract row headers
+    rv = cursor.fetchall()
+
     json_data = []
     for result in rv:
         json_data.append(dict(zip(row_headers, result)))
 
-    return render_template('tickets.html', data=json_data)
+    return json_data
 
-@app.route('/form')
+@app.route('/user/<id>')
+def index(id):
+
+    user_data = _get_json_from_db('''SELECT * FROM Customers where CustomerId=%s''', id)[0]
+    tickets_data = _get_json_from_db('''SELECT * FROM Tickets''')
+
+    return render_template('index.html', user=user_data, tickets=tickets_data)
+
+@app.route('/signin')
 def form():
-    return render_template('form.html')
+    return render_template('signin.html')
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -39,21 +48,12 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        cursor = mysql.connection.cursor()
 
-        sql = "select count(1) as cnt from Customers where Email=%s"
-        cursor.execute(sql, (email,))
-
-        row_headers = [x[0] for x in cursor.description]  # this will extract row headers
-        res = cursor.fetchall()
-
-        json_data = []
-        for result in res:
-            json_data.append(dict(zip(row_headers, result)))
-
-        if json_data[0]['cnt']==1:
-            return 'OK'
+        data = _get_json_from_db("select CustomerId from Customers where Email=%s", email)
+        print(data)
+        if len(data)>0:
+            return redirect(url_for('index', id=data[0]['CustomerId']))
         else:
-            return render_template('form.html')
+            return render_template('signin.html')
 
 app.run(host='localhost', port=5000)
