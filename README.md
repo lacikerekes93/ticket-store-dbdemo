@@ -13,7 +13,8 @@ To setup PHPMyAdmin:
 2. Open it in browser: localhost:8068
 
 To setup Flask:
-1. python3 -m venv venv (to create venv based on req.txt) OR python 
+1. python3 -m venv <your_venv> (to create venv based on req.txt) OR pip install virtualenv; virtualenv <your_virtualenv>;
+2. source <your_venv>/bin/activate
 2. export FLASK_APP=main
 3. export FLASK_ENV=development
 4. flask run
