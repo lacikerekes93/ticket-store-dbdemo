@@ -29,11 +29,13 @@ CREATE TABLE Events(
 	EventId int NOT NULL,
 	Category varchar(60),
 	Name varchar(60),
+	EventDate DATETIME,
  CONSTRAINT PK_EventId PRIMARY KEY (EventId)
  );
 
-INSERT INTO Events (EventId, Category, Name) VALUES (2,'Cinema', 'The Wolves of Wallstreet');
-INSERT INTO Events (EventId, Category, Name) VALUES (3,'Concert', 'Halott Penz');
+INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (1, 'Concert', 'Muse', '2023-05-01 19:00:00');
+INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (2, 'Cinema', 'The Wolves of Wallstreet', '2022-05-28 20:00:00');
+INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (3, 'Concert', 'Halott Penz', '2022-04-29 20:00:00');
 
 
 CREATE TABLE Users(
