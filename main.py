@@ -36,11 +36,12 @@ def index(id):
 
     user_data = _get_json_from_db('''SELECT * FROM Users where UserId=%s''', id)[0]
     userticket_data = _get_json_from_db('''
-                                            select t.*, e.* from Users u
+                                            SELECT t.*, e.* FROM Users u
                                             join UserTicket ut on u.UserId = ut.UserId
                                             join Tickets t on ut.TicketId = t.TicketId
-                                            join Event e on t.EventId = e.EventId
-                                        ''')
+                                            join Events e on t.EventId = e.EventId
+                                            where u.userID=%s
+                                        ''', id)
     print(userticket_data)
     return render_template('index.html', user=user_data, usertickets=userticket_data)
 
@@ -51,7 +52,7 @@ def tickets(id):
     tickets_data = _get_json_from_db('''
                                     select * 
                                     from Tickets t 
-                                    join Event e on t.EventId = e.EventId
+                                    join Events e on t.EventId = e.EventId
                                     ''')
 
     print(tickets_data)
