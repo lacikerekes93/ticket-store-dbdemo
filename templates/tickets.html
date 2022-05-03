@@ -8,12 +8,24 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='alerts.css') }}">
     <title>Home</title>
 </head>
 
 <body>
 {% include "header.html" %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-dismissible fade show {{ category }}"> {{ message|capitalize }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+  </button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
 <br/>
 <h4>Available tickets:</h4>
@@ -30,19 +42,19 @@
     </tr>
     </thead>
     <tbody>
-    {% for ut in tickets %}
+    {% for t in tickets %}
     <tr>
-      <td>{{ ut.TicketId }}</td>
-      <td>{{ ut.Category }} - {{ ut.Name }}</td>
-      <td>{{ ut.EventDate }}</td>
-      <td>{{ ut.TicketTier }}</td>
-      <td>€{{ ut.Price }}</td>
-      <td>{{ ut.UnitsAvailable }}</td>
+      <td>{{ t.TicketId }}</td>
+      <td>{{ t.Category }} - {{ t.Name }}</td>
+      <td>{{ t.EventDate }}</td>
+      <td>{{ t.TicketTier }}</td>
+      <td>€{{ t.Price }}</td>
+      <td>{{ t.UnitsAvailable }}</td>
       <!-- Button trigger modal -->
-      <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Buy</button></td>
+      <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{t.TicketId}}exampleModal">Buy</button></td>
 
       <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal fade" id="id{{t.TicketId}}exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -52,13 +64,15 @@
               </button>
             </div>
             <div class="modal-body">
-              You are going to buy the ticket:</br>{{ ut.Category }} - {{ ut.Name }}</br>Are you sure?
+              You are going to buy the ticket:</br>{{ t.Category }} - {{ t.Name }}</br>Are you sure?
             </div>
+
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <form action="{{ url_for('tickets', id=user.UserId) }}" method="POST">
-                <input type="hidden" name=""
-                <a href="{{ url_for('index', id=user.UserId) }}"><button type="button" class="btn btn-primary">Proceed</button></a>
+              <form action="/buyticket" method = "POST">
+                  <input type="hidden" name="ticket_id" value="{{ t.TicketId }}">
+                  <input type="hidden" name="user_id" value="{{ user.UserId }}">
+                  <button type="submit" class="btn btn-primary">Proceed</button>
               </form>
             </div>
           </div>
@@ -68,10 +82,6 @@
     {% endfor %}
     </tbody>
 </table>
-
-  
-  
-
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -84,5 +94,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-</br>
+
 </html>
