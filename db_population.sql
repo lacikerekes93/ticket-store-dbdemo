@@ -49,6 +49,7 @@ INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (1, 'Al
 INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (2, 'Bela', 'bela@mail.com', 100, 20);
 INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (3, 'Charles', 'charles@mail.com', 400, 70);
 INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (4, 'Daniela', 'daniela@mail.com', 600, 120);
+INSERT INTO Users  (UserID, Username, Email, Balance, MoneySpent) VALUES (5, 'admin', 'admin@mail.com', 10000, 0);
 
 
 CREATE TABLE UserTicket(

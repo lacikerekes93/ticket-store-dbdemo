@@ -27,6 +27,10 @@ def _get_json_from_db(sql, *params):
 
     return json_data
 
+@app.route('/')
+def signin():
+    return render_template('signin.html')
+
 @app.route('/user/<id>')
 def index(id):
 
