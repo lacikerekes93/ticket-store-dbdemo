@@ -93,7 +93,6 @@ begin
         SET MESSAGE_TEXT = 'An error occurred';
     end if;
 
-
     select balance
     into userbalance
     from users
