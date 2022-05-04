@@ -70,7 +70,7 @@ DELIMITER $$
 
 create trigger before_ticket_insert
 before insert
-on userticket for each row
+on UserTicket for each row
 begin
 
     DECLARE `negative` CONDITION FOR SQLSTATE '45000';
@@ -81,36 +81,62 @@ begin
 
     select UnitsAvailable
     into availableQuantity
-    from tickets
-    where ticketid = new.ticketid;
+    from Tickets
+    where TicketId = new.TicketId;
 
-    if availableQuantity >= new.quantity THEN
-       UPDATE tickets
-       SET UnitsAvailable = UnitsAvailable - new.quantity
-       where ticketid = new.ticketid;
+    if availableQuantity >= new.Quantity THEN
+       UPDATE Tickets
+       SET UnitsAvailable = UnitsAvailable - new.Quantity
+       where TicketId = new.TicketId;
     else
         SIGNAL `negative`
         SET MESSAGE_TEXT = 'An error occurred';
     end if;
 
-    select balance
+    select Balance
     into userbalance
-    from users
-    where userid = new.userid;
+    from Users
+    where UserId = new.UserId;
 
-    select price
+    select Price
     into ticketprice
-    from tickets
-    where ticketid = new.ticketid;
+    from Tickets
+    where TicketId = new.TicketId;
 
     if userbalance >= ticketprice THEN
-       UPDATE users
+       UPDATE Users
        SET balance = balance - ticketprice
-       where userid = new.userid;
+       where UserId = new.UserId;
     else
         SIGNAL `negative`
         SET MESSAGE_TEXT = 'An error occurred';
     end if;
+
+end$$
+DELIMITER ;
+
+
+DELIMITER $$
+
+create trigger after_ticket_refund
+after delete
+on UserTicket for each row
+begin
+
+    declare ticketprice float;
+
+    UPDATE Tickets
+    SET UnitsAvailable = UnitsAvailable + old.Quantity
+    where TicketId = old.TicketId;
+
+    select Price
+    into ticketprice
+    from tickets
+    where ticketid = old.ticketid;
+
+    UPDATE Users
+    SET balance = balance + (ticketprice * old.Quantity)
+    where UserId = old.UserId;
 
 end$$
 DELIMITER ;

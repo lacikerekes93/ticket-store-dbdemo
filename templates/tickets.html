@@ -49,7 +49,11 @@
       <td>{{ t.EventDate }}</td>
       <td>{{ t.TicketTier }}</td>
       <td>€{{ t.Price }}</td>
-      <td>{{ t.UnitsAvailable }}</td>
+      {% if t.UnitsAvailable == 0 %}
+        <td>SOLD OUT</td>
+      {% else %}
+        <td>{{ t.UnitsAvailable }}</td>
+      {% endif %}
       <!-- Button trigger modal -->
       <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{t.TicketId}}exampleModal">Buy</button></td>
 

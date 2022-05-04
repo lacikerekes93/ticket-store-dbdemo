@@ -70,7 +70,7 @@ def buy_ticket():
         try:
             # replacing MSSql's instead 'of' trigger with insert ignore statement of MySQL
             _insert_into_db("""
-                            insert ignore into UserTicket (userID, TicketId, Quantity) 
+                            insert ignore into UserTicket (UserId, TicketId, Quantity) 
                             values (%s, %s, %s) on duplicate key update quantity=quantity+%s
                             """, user_id, ticket_id, quantity, quantity)
             flash("Successful purchase!", "alert-success")
@@ -80,6 +80,35 @@ def buy_ticket():
 
         finally:
             return redirect(url_for('tickets', id=user_id))
+
+
+@app.route('/refundticket', methods=['POST', 'GET'])
+def refund_ticket():
+
+    if request.method == 'GET':
+        return render_template('signin.html')
+
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        ticket_id = request.form['ticket_id']
+        quantity = request.form['ticket_quantity']
+
+        print("UserId: {}, TicketId: {}, Quantity {}".format(user_id, ticket_id, quantity))
+
+        try:
+            # replacing MSSql's instead 'of' trigger with insert ignore statement of MySQL
+            _insert_into_db("""
+                            DELETE FROM UserTicket
+                            WHERE UserId=%s
+                            AND TicketId=%s
+                            """, user_id, ticket_id)
+            flash("Successfully refunded!", "alert-success")
+
+        except:
+            flash("Some issue during refunding your ticket... Please, call the cutomer service!", "alert-danger")
+
+        finally:
+            return redirect(url_for('index', id=user_id))
 
 
 @app.route('/login', methods=['POST', 'GET'])

@@ -38,8 +38,36 @@
         <td>{{ ut.TicketTier }}</td>
         <td>{{ ut.Quantity }}</td>
         <td>€{{ ut.Price }}</td>
-        <td><button class="btn btn-primary" type="submit">Refund</button></td>
+        <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{ut.TicketId}}exampleModal">Refund</button></td>
     </tr>
+
+    <!-- Modal -->
+    <div class="modal fade" id="id{{ut.TicketId}}exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Refund ticket</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              You are going to refund the ticket:</br>{{ ut.Category }} - {{ ut.Name }}</br>Are you sure?
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <form action="/refundticket" method = "POST">
+                  <input type="hidden" name="ticket_id" value="{{ ut.TicketId }}">
+                  <input type="hidden" name="user_id" value="{{ user.UserId }}">
+                  <input type="hidden" name="ticket_quantity" value="{{ ut.Quantity }}">
+                  <button type="submit" class="btn btn-primary">Proceed</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+  </tr>
     {% endfor %}
     </tbody>
 </table>
