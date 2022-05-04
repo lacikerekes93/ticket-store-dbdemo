@@ -48,11 +48,11 @@ CREATE TABLE Users(
 	UserId
 ));
 
-INSERT INTO Users (UserID, Username, Email, Balance, MoneySpent) VALUES (1, 'admin', 'admin@mail.com', 10000, 0);
-INSERT INTO Users (UserID, Username, Email, Balance, MoneySpent) VALUES (2, 'Alfred', 'alfred@mail.com', 1000, 2000);
-INSERT INTO Users (UserID, Username, Email, Balance, MoneySpent) VALUES (3, 'Bela', 'bela@mail.com', 100, 20);
-INSERT INTO Users (UserID, Username, Email, Balance, MoneySpent) VALUES (4, 'Charles', 'charles@mail.com', 400, 70);
-INSERT INTO Users (UserID, Username, Email, Balance, MoneySpent) VALUES (5, 'Daniela', 'daniela@mail.com', 600, 120);
+INSERT INTO Users (UserId, Username, Email, Balance, MoneySpent) VALUES (1, 'admin', 'admin@mail.com', 10000, 0);
+INSERT INTO Users (UserId, Username, Email, Balance, MoneySpent) VALUES (2, 'Alfred', 'alfred@mail.com', 1000, 2000);
+INSERT INTO Users (UserId, Username, Email, Balance, MoneySpent) VALUES (3, 'Bela', 'bela@mail.com', 100, 20);
+INSERT INTO Users (UserId, Username, Email, Balance, MoneySpent) VALUES (4, 'Charles', 'charles@mail.com', 400, 70);
+INSERT INTO Users (UserId, Username, Email, Balance, MoneySpent) VALUES (5, 'Daniela', 'daniela@mail.com', 600, 120);
 
 
 CREATE TABLE UserTicket(
@@ -63,8 +63,8 @@ CREATE TABLE UserTicket(
  CONSTRAINT PK_UserTicketId PRIMARY KEY (UserId, TicketId)
  );
 
-INSERT INTO UserTicket (UserID, TicketId, Quantity, PurchaseTime) VALUES (2, 4, 1, '2022-05-02 13:41:00.123');
-INSERT INTO UserTicket (UserID, TicketId, Quantity, PurchaseTime) VALUES (2, 5, 1, '2022-05-02 14:42:00.133');
+INSERT INTO UserTicket (UserId, TicketId, Quantity, PurchaseTime) VALUES (2, 4, 1, '2022-05-02 13:41:00.123');
+INSERT INTO UserTicket (UserId, TicketId, Quantity, PurchaseTime) VALUES (2, 5, 1, '2022-05-02 14:42:00.133');
 
 DELIMITER $$
 
