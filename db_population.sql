@@ -58,9 +58,60 @@ INSERT INTO Users (UserID, Username, Email, Balance, MoneySpent) VALUES (5, 'Dan
 CREATE TABLE UserTicket(
 	UserId int NOT NULL,
 	TicketId int NOT NULL,
+	Quantity int NOT NULL,
 	PurchaseTime Timestamp DEFAULT CURRENT_TIMESTAMP,
  CONSTRAINT PK_UserTicketId PRIMARY KEY (UserId, TicketId)
  );
 
-INSERT INTO UserTicket (UserID, TicketId, PurchaseTime) VALUES (2, 4, '2022-05-02 13:41:00.123');
-INSERT INTO UserTicket (UserID, TicketId, PurchaseTime) VALUES (2, 5, '2022-05-02 14:42:00.133');
+INSERT INTO UserTicket (UserID, TicketId, Quantity, PurchaseTime) VALUES (2, 4, 1, '2022-05-02 13:41:00.123');
+INSERT INTO UserTicket (UserID, TicketId, Quantity, PurchaseTime) VALUES (2, 5, 1, '2022-05-02 14:42:00.133');
+
+DELIMITER $$
+
+create trigger before_ticket_insert
+before insert
+on userticket for each row
+begin
+
+    DECLARE `negative` CONDITION FOR SQLSTATE '45000';
+
+    declare availableQuantity int;
+    declare userbalance float;
+    declare ticketprice float;
+
+    select UnitsAvailable
+    into availableQuantity
+    from tickets
+    where ticketid = new.ticketid;
+
+    if availableQuantity >= new.quantity THEN
+       UPDATE tickets
+       SET UnitsAvailable = UnitsAvailable - new.quantity
+       where ticketid = new.ticketid;
+    else
+        SIGNAL `negative`
+        SET MESSAGE_TEXT = 'An error occurred';
+    end if;
+
+
+    select balance
+    into userbalance
+    from users
+    where userid = new.userid;
+
+    select price
+    into ticketprice
+    from tickets
+    where ticketid = new.ticketid;
+
+    if userbalance >= ticketprice THEN
+       UPDATE users
+       SET balance = balance - ticketprice
+       where userid = new.userid;
+    else
+        SIGNAL `negative`
+        SET MESSAGE_TEXT = 'An error occurred';
+    end if;
+
+end$$
+DELIMITER ;
