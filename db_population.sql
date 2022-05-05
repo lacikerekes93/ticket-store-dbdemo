@@ -66,6 +66,22 @@ CREATE TABLE UserTicket(
 INSERT INTO UserTicket (UserId, TicketId, Quantity, PurchaseTime) VALUES (2, 4, 1, '2022-05-02 13:41:00.123');
 INSERT INTO UserTicket (UserId, TicketId, Quantity, PurchaseTime) VALUES (2, 5, 1, '2022-05-02 14:42:00.133');
 
+
+CREATE TABLE TicketTransactionLog(
+	TransactionId int AUTO_INCREMENT,
+	UserId int NOT NULL,
+	UserName varchar(100),
+	TicketId int NOT NULL,
+	EventDisplayName varchar(150),
+	Quantity int,
+	TransactionTime Timestamp DEFAULT CURRENT_TIMESTAMP,
+	Cancelled boolean DeFAULT 0,
+	Processed boolean DEFAULT False,
+	ProcessedTime Timestamp DEFAULT NULL,
+ CONSTRAINT PK_TransactionId PRIMARY KEY (TransactionId)
+ );
+
+
 DELIMITER $$
 
 create trigger before_ticket_insert
@@ -111,6 +127,36 @@ begin
         SIGNAL `negative`
         SET MESSAGE_TEXT = 'An error occurred';
     end if;
+
+end$$
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+create trigger after_ticket_insert
+after insert
+on UserTicket for each row
+
+begin
+
+    declare userName varchar(100);
+    declare eventDisplayName varchar(100);
+
+    select e.Name
+    into eventDisplayName
+    from Tickets t
+    join Events e on t.EventId = e.EventId
+    where t.TicketId = new.TicketId;
+
+    select u.UserName
+    into userName
+    from Users u
+    where u.UserId = new.UserId;
+
+    INSERT INTO TicketTransactionLog (UserId, UserName, TicketId, EventDisplayName, Quantity)
+    VALUES (new.UserId, userName, new.TicketId, eventDisplayName, new.Quantity);
 
 end$$
 DELIMITER ;
