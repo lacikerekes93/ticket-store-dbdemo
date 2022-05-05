@@ -67,6 +67,14 @@ def buy_ticket():
 
         print("UserId: {}, TicketId: {}".format(user_id, ticket_id))
 
+        _insert_into_db("""
+                                    insert ignore into UserTicket (UserId, TicketId, Quantity) 
+                                    values (%s, %s, %s) on duplicate key update quantity=quantity+%s
+                                    """, user_id, ticket_id, quantity, quantity)
+        flash("Successful purchase!", "alert-success")
+
+        return redirect(url_for('tickets', id=user_id))
+'''
         try:
             # replacing MSSql's instead 'of' trigger with insert ignore statement of MySQL
             _insert_into_db("""
@@ -80,7 +88,7 @@ def buy_ticket():
 
         finally:
             return redirect(url_for('tickets', id=user_id))
-
+'''
 
 @app.route('/refundticket', methods=['POST', 'GET'])
 def refund_ticket():
