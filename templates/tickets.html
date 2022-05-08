@@ -51,11 +51,15 @@
       <td>€{{ t.Price }}</td>
       {% if t.UnitsAvailable == 0 %}
         <td>SOLD OUT</td>
-      {% else %}
-        <td>{{ t.UnitsAvailable }}</td>
+        <td></td>
+      {% elif t.Discontinued == 1 %}
+       <td>Event closed</td>
+        <td></td>
+        {% else %}
+         <td>{{ t.UnitsAvailable }}</td>
+        <!-- Button trigger modal -->
+        <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{t.TicketId}}exampleModal">Buy</button></td>
       {% endif %}
-      <!-- Button trigger modal -->
-      <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{t.TicketId}}exampleModal">Buy</button></td>
 
       <!-- Modal -->
       <div class="modal fade" id="id{{t.TicketId}}exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

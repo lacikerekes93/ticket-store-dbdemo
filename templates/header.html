@@ -9,8 +9,11 @@
         <li class="nav-item active">
           <a class="nav-link" href="{{ url_for('index', id=user.UserId) }}">Home <span class="sr-only">(current)</span></a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="{{ url_for('tickets', id=user.UserId) }}">Tickets</a>
+        </li>
+          <li class="nav-item active">
+          <a class="nav-link" href="{{ url_for('admin', id=user.UserId)}}" style="color: red;">Admin</a>
         </li>
       </ul>
 

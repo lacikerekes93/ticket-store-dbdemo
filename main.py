@@ -16,17 +16,50 @@ mysql = MySQL(app)
 def signin():
     return render_template('signin.html')
 
+@app.route('/admin/<id>')
+def admin(id):
+
+    user_data = _get_json_from_db('''SELECT * FROM Users where UserId=%s''', id)[0]
+    event_data = _get_json_from_db('''SELECT * FROM Events where Discontinued=0''')
+    transaction_data = _get_json_from_db('''SELECT * FROM TicketTransactionLog''')
+
+    return render_template('admin.html', user=user_data, events=event_data, transaction_log=transaction_data)
+
+@app.route('/processtickets/', methods=['POST', 'GET'])
+def processtickets():
+    if request.method == 'GET':
+        return render_template('signin.html')
+
+    if request.method == 'POST':
+
+        user_id = request.form['user_id']
+        event_id = request.form['event_id']
+
+        try:
+
+            _call_procedure_from_db("sp_process_tickets", event_id)
+            flash("Tickets are finalized!", "alert-success")
+            
+        except:
+            flash("Something went wrong!", "alert-danger")
+
+        finally:
+            return redirect(url_for('admin', id=user_id))
+
 
 @app.route('/user/<id>')
 def index(id):
 
     user_data = _get_json_from_db('''SELECT * FROM Users where UserId=%s''', id)[0]
     userticket_data = _get_json_from_db('''
-                                            SELECT t.*, e.*, ut.* FROM Users u
+                                            SELECT distinct e.Category, e.Name, 
+                                            t.TicketId, e.EventDate, t.TicketTier, ut.Quantity, t.Price, tl.Processed
+                                            FROM Users u
                                             join UserTicket ut on u.UserId = ut.UserId
                                             join Tickets t on ut.TicketId = t.TicketId
                                             join Events e on t.EventId = e.EventId
-                                            where u.userID=%s
+                                            join TicketTransactionLog tl on tl.UserId = u.UserId and tl.TicketId = t.TicketId 
+                                            where u.userID=%s and tl.Cancelled=0
                                         ''', id)
     print(userticket_data)
     return render_template('index.html', user=user_data, usertickets=userticket_data)
@@ -102,7 +135,7 @@ def refund_ticket():
             flash("Successfully refunded!", "alert-success")
 
         except:
-            flash("Some issue during refunding your ticket... Please, call the cutomer service!", "alert-danger")
+            flash("Some issue during refunding your ticket... Please, call the customer service!", "alert-danger")
 
         finally:
             return redirect(url_for('index', id=user_id))
@@ -144,5 +177,14 @@ def _insert_into_db(sql, *params):
 
     cursor = mysql.connection.cursor()
     cursor.execute(sql, params)
+
+    mysql.connection.commit()
+
+
+def _call_procedure_from_db(procname, *params):
+
+    cursor = mysql.connection.cursor()
+    cursor.callproc(procname, [params])
+    cursor.close()
 
     mysql.connection.commit()
