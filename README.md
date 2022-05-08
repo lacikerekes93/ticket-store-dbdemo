@@ -20,11 +20,13 @@ Replication setup on master:
 2. create user 'replica'@'<replica_server_ip>' identified by '<replica_server_password>'
 3. grant replication slave on *.* to 'replica'@'<replica_server_ip>'
 4. show master status
+```bash
     +------------------+----------+--------------+------------------+
     | File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
     +------------------+----------+--------------+------------------+
     | mysql-bin.000006 |      245 |              |                  |
     +------------------+----------+--------------+------------------+
+```
 5. exit 
 6. mysqldump -u root -p --all-databases --master-data > dbdump.sql
 7. scp dbdump.sql <replica_server_ip>:/tmp
@@ -52,6 +54,7 @@ Replication setup on master:
         MariaDB [flask]> start slave;
 
 13. check status:
+```bash
         MariaDB [(none)]> show slave status \G
 *************************** 1. row ***************************
                Slave_IO_State: Waiting for master to send event
@@ -95,3 +98,4 @@ Master_SSL_Verify_Server_Cert: No
   Replicate_Ignore_Server_Ids:
              Master_Server_Id: 1
 1 row in set (0.00 sec)
+```
