@@ -77,7 +77,7 @@ CREATE TABLE TicketTransactionLog(
 	TransactionTime Timestamp DEFAULT CURRENT_TIMESTAMP,
 	Cancelled boolean DeFAULT 0,
 	Processed boolean DEFAULT False,
-	ProcessedTime Timestamp DEFAULT NULL,
+	ProcessedTime Timestamp,
  CONSTRAINT PK_TransactionId PRIMARY KEY (TransactionId)
  );
 
@@ -132,7 +132,6 @@ end$$
 DELIMITER ;
 
 
-
 DELIMITER $$
 
 create trigger after_ticket_insert
@@ -164,6 +163,35 @@ DELIMITER ;
 
 DELIMITER $$
 
+create trigger after_ticket_update
+after update
+on UserTicket for each row
+
+begin
+
+    declare userName varchar(100);
+    declare eventDisplayName varchar(100);
+
+    select e.Name
+    into eventDisplayName
+    from Tickets t
+    join Events e on t.EventId = e.EventId
+    where t.TicketId = new.TicketId;
+
+    select u.UserName
+    into userName
+    from Users u
+    where u.UserId = new.UserId;
+
+    INSERT INTO TicketTransactionLog (UserId, UserName, TicketId, EventDisplayName, Quantity)
+    VALUES (new.UserId, userName, new.TicketId, eventDisplayName, 1);
+
+end$$
+DELIMITER ;
+
+
+DELIMITER $$
+
 create trigger after_ticket_refund
 after delete
 on UserTicket for each row
@@ -177,7 +205,7 @@ begin
 
     select Price
     into ticketprice
-    from tickets
+    from Tickets
     where ticketid = old.ticketid;
 
     UPDATE Users
