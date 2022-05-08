@@ -1,6 +1,3 @@
-#export FLASK_APP=main
-#export FLASK_ENV=development
-
 from flask import Flask, render_template, request, jsonify, url_for, redirect, flash, session
 from flask_mysqldb import MySQL
 
@@ -9,7 +6,7 @@ app.secret_key = "super secret key"
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'password'
 app.config['MYSQL_DB'] = 'flask'
 
 mysql = MySQL(app)
