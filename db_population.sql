@@ -1,3 +1,5 @@
+drop database if exists flask;
+
 create database flask;
 use flask;
 
@@ -8,21 +10,20 @@ CREATE TABLE Tickets(
 	Price float NULL,
 	UnitsAvailable smallint NULL check(UnitsAvailable >= 0),
 	UnitsPurchased smallint NULL,
-	Discontinued boolean NOT NULL,
  CONSTRAINT PK_TicketId PRIMARY KEY (
 	TicketID
 ));
 
-INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased, Discontinued)
-VALUES (1, 1, 'Tier A', 500, 50, 0, FALSE);
-INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased, Discontinued)
-VALUES (2, 1, 'Tier B', 250, 5, 145, FALSE);
-INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased, Discontinued)
-VALUES (3, 1, 'Tier C', 100, 2, 998, FALSE);
-INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased, Discontinued)
-VALUES (4, 2, NULL, 10 ,4, 56, FALSE);
-INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased, Discontinued)
-VALUES (5, 3, NULL, 20, 0, 100, TRUE);
+INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased)
+VALUES (1, 1, 'Tier A', 500, 50, 0);
+INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased)
+VALUES (2, 1, 'Tier B', 250, 5, 145);
+INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased)
+VALUES (3, 1, 'Tier C', 100, 2, 998);
+INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased)
+VALUES (4, 2, NULL, 10 ,4, 56);
+INSERT INTO Tickets (TicketId, EventId, TicketTier, Price, UnitsAvailable, UnitsPurchased)
+VALUES (5, 3, NULL, 20, 2, 100);
 
 
 CREATE TABLE Events(
@@ -30,11 +31,12 @@ CREATE TABLE Events(
 	Category varchar(60),
 	Name varchar(60),
 	EventDate DATETIME,
+	Discontinued boolean DEFAULT 0,
  CONSTRAINT PK_EventId PRIMARY KEY (EventId)
  );
 
 INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (1, 'Concert', 'Muse', '2023-05-01 19:00:00');
-INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (2, 'Cinema', 'The Wolves of Wallstreet', '2022-05-28 20:00:00');
+INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (2, 'Cinema', 'The Wolf of Wallstreet', '2022-05-28 20:00:00');
 INSERT INTO Events (EventId, Category, Name, EventDate) VALUES (3, 'Concert', 'Halott Penz', '2022-04-29 20:00:00');
 
 
@@ -72,6 +74,7 @@ CREATE TABLE TicketTransactionLog(
 	UserId int NOT NULL,
 	UserName varchar(100),
 	TicketId int NOT NULL,
+	EventId int,
 	EventDisplayName varchar(150),
 	Quantity int,
 	TransactionTime Timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -140,11 +143,12 @@ on UserTicket for each row
 
 begin
 
+    declare eventId int;
     declare userName varchar(100);
     declare eventDisplayName varchar(100);
 
-    select e.Name
-    into eventDisplayName
+    select e.EventId, e.Name
+    into eventId, eventDisplayName
     from Tickets t
     join Events e on t.EventId = e.EventId
     where t.TicketId = new.TicketId;
@@ -154,8 +158,8 @@ begin
     from Users u
     where u.UserId = new.UserId;
 
-    INSERT INTO TicketTransactionLog (UserId, UserName, TicketId, EventDisplayName, Quantity)
-    VALUES (new.UserId, userName, new.TicketId, eventDisplayName, new.Quantity);
+    INSERT INTO TicketTransactionLog (UserId, UserName, TicketId, EventId, EventDisplayName, Quantity)
+    VALUES (new.UserId, userName, new.TicketId, eventId, eventDisplayName, new.Quantity);
 
 end$$
 DELIMITER ;
@@ -169,11 +173,12 @@ on UserTicket for each row
 
 begin
 
+    declare eventId int;
     declare userName varchar(100);
     declare eventDisplayName varchar(100);
 
-    select e.Name
-    into eventDisplayName
+    select e.EventId, e.Name
+    into eventId, eventDisplayName
     from Tickets t
     join Events e on t.EventId = e.EventId
     where t.TicketId = new.TicketId;
@@ -183,8 +188,8 @@ begin
     from Users u
     where u.UserId = new.UserId;
 
-    INSERT INTO TicketTransactionLog (UserId, UserName, TicketId, EventDisplayName, Quantity)
-    VALUES (new.UserId, userName, new.TicketId, eventDisplayName, 1);
+    INSERT INTO TicketTransactionLog (UserId, UserName, TicketId, EventId, EventDisplayName, Quantity)
+    VALUES (new.UserId, userName, new.TicketId, eventId, eventDisplayName, new.Quantity-old.Quantity);
 
 end$$
 DELIMITER ;
@@ -212,5 +217,62 @@ begin
     SET balance = balance + (ticketprice * old.Quantity)
     where UserId = old.UserId;
 
+    UPDATE TicketTransactionLog
+    SET Cancelled = 1
+    where UserId = old.UserId and TicketId = old.TicketId;
+
 end$$
+DELIMITER ;
+
+
+DELIMITER $$
+create PROCEDURE sp_process_tickets(IN var_EventId int)
+BEGIN
+
+    declare var_TransactionId int;
+    declare var_UserName varchar(100);
+    declare var_EventName varchar(100);
+    declare done int;
+
+    declare cursor_events cursor for
+        select TransactionId, Username, EventDisplayName
+        from TicketTransactionLog where Processed=0 and Cancelled=0 and EventId=var_EventId;
+    declare continue handler for not found set done=1;
+
+    open cursor_events;
+    igmLoop: loop
+
+        fetch cursor_events into var_TransactionId, var_UserName, var_EventName;
+        if done = 1 then leave igmLoop; end if;
+
+            call printf(concat('Processing Transaction ID=', var_TransactionId, ' User: ', var_UserName, ' for Event: ', var_EventName));
+
+            call printf(' Processing ticket..');
+            select sleep(1);
+
+            update TicketTransactionLog
+            set ProcessedTime=CURRENT_TIMESTAMP(), Processed=1
+            where TransactionId=var_TransactionId;
+
+            call printf('Event processing OK');
+
+    end loop igmLoop;
+
+    update Events set Discontinued=1 where EventID=var_EventId;
+
+    close cursor_events;
+end$$
+DELIMITER ;
+
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS printf;
+CREATE PROCEDURE printf(thetext TEXT)
+BEGIN
+
+  select thetext as ``;
+
+END$$
+
 DELIMITER ;
