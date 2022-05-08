@@ -32,15 +32,20 @@ Replication setup on master:
 7. scp dbdump.sql <replica_server_ip>:/tmp
 8. SSH into replica server
 9. create flask DB: mysql -u root -p
+```bash
         MariaDB [flask]> create database flask;
         MariaDB [flask]> exit
+```
 
 10. Load dump into flask DB: mysql -u root -p flask < /tmp/dbdump.sql
 11. check tables: mysql -u root -p
+```bash
         MariaDB [flask]> use flask;
         MariaDB [flask]> show tables;
+```
 
 12. Stop slave: 
+```bash
         MariaDB [flask]> stop slave;
         MariaDB [flask]> change master to
             -> master_host='172.31.28.137',
@@ -49,9 +54,14 @@ Replication setup on master:
             -> master_log_file='mysql-bin.000006',
             -> master_log_pos=245;
         Query OK, 0 rows affected (0.01 sec)
+        
+        MariaDB [flask]> set global Replicate_Do_Table='flask.TicketTransactionLog';
+```
 
 12. start slave:
+````bash
         MariaDB [flask]> start slave;
+```
 
 13. check status:
 ```bash
