@@ -50,7 +50,11 @@
         <td>{{ ut.TicketTier }}</td>
         <td>{{ ut.Quantity }}</td>
         <td>€{{ ut.Price }}</td>
-        <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{ut.TicketId}}exampleModal">Refund</button></td>
+        {% if ut.Processed == 0%}
+            <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#id{{ut.TicketId}}exampleModal">Refund</button></td>
+        {% else %}
+            <td></td>
+        {% endif %}
     </tr>
 
     <!-- Modal -->
