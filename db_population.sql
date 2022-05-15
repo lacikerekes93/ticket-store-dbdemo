@@ -65,9 +65,6 @@ CREATE TABLE UserTicket(
  CONSTRAINT PK_UserTicketId PRIMARY KEY (UserId, TicketId)
  );
 
-INSERT INTO UserTicket (UserId, TicketId, Quantity, PurchaseTime) VALUES (2, 4, 1, '2022-05-02 13:41:00.123');
-INSERT INTO UserTicket (UserId, TicketId, Quantity, PurchaseTime) VALUES (2, 5, 1, '2022-05-02 14:42:00.133');
-
 
 CREATE TABLE TicketTransactionLog(
 	TransactionId int AUTO_INCREMENT,
